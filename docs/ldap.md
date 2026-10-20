@@ -14,7 +14,7 @@ Nothing changes until `LDAP_URL` and `LDAP_BASE_DN` are set.
 
 HyCanvas uses the standard search-then-bind flow:
 
-1. Connect to `LDAP_URL` (TLS required, see below) and bind as the service
+1. Connect to `LDAP_URL` (plain `ldap://`, `ldaps://`, or StartTLS) and bind as the service
    account `LDAP_BIND_DN` (or stay anonymous when it is empty).
 2. Search under `LDAP_BASE_DN` with `LDAP_USER_FILTER`, with the typed
    username escaped into `{username}`. Exactly one entry must match.
@@ -50,8 +50,8 @@ groups.
 ### OpenLDAP / FreeIPA
 
 ```env
-LDAP_URL="ldap://ldap.example.com:389"
-LDAP_START_TLS="true"
+LDAP_URL="ldap://192.168.1.10:389"   # plain LDAP on the local network
+# LDAP_START_TLS="true"              # optional: encrypt with StartTLS
 LDAP_BASE_DN="ou=people,dc=example,dc=com"
 LDAP_BIND_DN="cn=hycanvas,ou=service,dc=example,dc=com"
 LDAP_BIND_PASSWORD="..."
@@ -78,7 +78,6 @@ FreeIPA users live under `cn=users,cn=accounts,dc=...`.
 | `LDAP_START_TLS` | `false` | Upgrade an `ldap://` connection with StartTLS |
 | `LDAP_CA_CERT_FILE` | system roots | PEM file with your internal CA |
 | `LDAP_TLS_INSECURE_SKIP_VERIFY` | `false` | Skip certificate checks (lab only) |
-| `LDAP_ALLOW_INSECURE` | `false` | Allow plain `ldap://` to a non-localhost host (trusted private network only) |
 | `LDAP_TIMEOUT` | `10s` | Connect and request timeout |
 | `LDAP_LABEL` | `Directory` | Button text: "Sign in with <label>" |
 | `LDAP_ALLOWED_EMAIL_DOMAINS` | (none) | See "Existing accounts" |
@@ -92,9 +91,10 @@ straight on the directory form.
 
 ## Security behaviour
 
-- **Encrypted transport only.** `ldaps://` or `ldap://` + `LDAP_START_TLS=true`.
-  A plain `ldap://` URL to anything but localhost turns LDAP sign-in off (with a
-  startup warning) unless you set `LDAP_ALLOW_INSECURE=true`.
+- **Plain `ldap://` is allowed**, which suits a directory on your local network.
+  Directory passwords then cross the network unencrypted, and the server logs a
+  startup warning to say so. For encryption, use `ldaps://` or
+  `LDAP_START_TLS=true`.
 - **Blank passwords are refused** before contacting the directory. LDAP treats
   a bind with no password as an "unauthenticated bind", which many servers
   accept, so a blank password must never be passed through.
@@ -136,7 +136,7 @@ The server logs every failure with an `ldap:` prefix.
 
 | Sign-in page says | Log says | Fix |
 | --- | --- | --- |
-| Button missing | `ldap: LDAP sign-in disabled` | Read the `reason`, usually plain `ldap://` without StartTLS |
+| Button missing | `ldap: LDAP sign-in disabled` | Read the `reason`: a malformed `LDAP_URL` or a filter without `{username}` |
 | "directory server can't be reached" | `ldap: connect failed` | Host, port, firewall, or certificate (`LDAP_CA_CERT_FILE`) |
 | "directory server can't be reached" | `service account bind failed` | Wrong `LDAP_BIND_DN` / `LDAP_BIND_PASSWORD` |
 | "Invalid username or password" | `matched more than one directory entry` | Tighten `LDAP_USER_FILTER` |

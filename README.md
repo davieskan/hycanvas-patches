@@ -153,7 +153,7 @@ LDAP_BIND_PASSWORD=<service account password>
 LDAP_LABEL=Company
 ```
 
-A "Sign in with Company" button then shows on the auth pages, and the first directory sign-in creates the HyCanvas account. Connections must be encrypted (`ldaps://` or StartTLS), `LDAP_REQUIRED_GROUP_DN` limits access to one group, and two-step verification still applies. See [docs/ldap.md](docs/ldap.md) for Active Directory and OpenLDAP examples, every setting, and troubleshooting.
+A "Sign in with Company" button then shows on the auth pages, and the first directory sign-in creates the HyCanvas account. Plain `ldap://` works on a local network (`ldaps://` or StartTLS encrypt it), `LDAP_REQUIRED_GROUP_DN` limits access to one group, and two-step verification still applies. See [docs/ldap.md](docs/ldap.md) for Active Directory and OpenLDAP examples, every setting, and troubleshooting.
 
 ### Choosing which sign-in methods are allowed
 

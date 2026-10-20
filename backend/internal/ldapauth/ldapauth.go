@@ -11,10 +11,9 @@
 //     answer with success, which would let anyone in with a blank password.
 //   - The typed username is escaped before it is placed in the search filter, so
 //     it cannot widen the filter (LDAP injection).
-//   - Credentials never cross the network in the clear: a plain ldap:// URL needs
-//     LDAP_START_TLS=true, unless the host is localhost or the operator opts out
-//     explicitly with LDAP_ALLOW_INSECURE=true. Otherwise LDAP sign-in stays off,
-//     which is safer than sending passwords unencrypted.
+//   - Plain ldap:// is allowed (typical for a directory on a private LAN). It
+//     sends passwords unencrypted, so a startup warning says so; ldaps:// or
+//     LDAP_START_TLS=true encrypt the connection when wanted.
 //   - Unknown user, wrong password, and a search that matches several entries
 //     all return ErrInvalidCredentials, so the endpoint does not reveal which
 //     usernames exist.
@@ -78,7 +77,6 @@ type Config struct {
 	StartTLS           bool
 	InsecureSkipVerify bool
 	CACertFile         string
-	AllowInsecure      bool
 	Timeout            time.Duration
 	Label              string
 }
@@ -94,8 +92,7 @@ const (
 var stableIDAttrs = []string{"entryUUID", "objectGUID", "ipaUniqueID", "GUID", "nsUniqueId"}
 
 // LoadConfig reads the LDAP_* env. It returns nil when LDAP is not configured
-// (LDAP_URL or LDAP_BASE_DN unset) or when the configuration would send
-// passwords in the clear; the reason is logged.
+// (LDAP_URL or LDAP_BASE_DN unset) or the URL is invalid; the reason is logged.
 func LoadConfig() *Config {
 	c := &Config{
 		URL:                strings.TrimSpace(os.Getenv("LDAP_URL")),
@@ -111,7 +108,6 @@ func LoadConfig() *Config {
 		StartTLS:           os.Getenv("LDAP_START_TLS") == "true",
 		InsecureSkipVerify: os.Getenv("LDAP_TLS_INSECURE_SKIP_VERIFY") == "true",
 		CACertFile:         strings.TrimSpace(os.Getenv("LDAP_CA_CERT_FILE")),
-		AllowInsecure:      os.Getenv("LDAP_ALLOW_INSECURE") == "true",
 		Timeout:            10 * time.Second,
 		Label:              strings.TrimSpace(os.Getenv("LDAP_LABEL")),
 	}
@@ -144,24 +140,31 @@ func LoadConfig() *Config {
 		slog.Warn("ldap: LDAP sign-in disabled", "reason", err.Error(), "url", c.URL)
 		return nil
 	}
+	if c.Unencrypted() {
+		slog.Warn("ldap: connection is unencrypted (plain ldap:// without LDAP_START_TLS); directory passwords cross the network in clear text, so keep the directory on a trusted network", "url", c.URL)
+	}
 	return c
 }
 
-// transportOK refuses a configuration that would send the bind password in the
-// clear: ldap:// without StartTLS to a host other than localhost.
+// Unencrypted reports a plain ldap:// connection to a non-localhost host
+// without StartTLS. Allowed, but logged at startup.
+func (c *Config) Unencrypted() bool {
+	u, err := url.Parse(c.URL)
+	if err != nil {
+		return false
+	}
+	return strings.EqualFold(u.Scheme, "ldap") && !c.StartTLS && !isLoopback(u.Hostname())
+}
+
+// transportOK validates LDAP_URL: an ldap:// or ldaps:// URL with a host.
 func (c *Config) transportOK() error {
 	u, err := url.Parse(c.URL)
 	if err != nil || u.Host == "" {
 		return fmt.Errorf("LDAP_URL is not a valid ldap:// or ldaps:// URL")
 	}
 	switch strings.ToLower(u.Scheme) {
-	case "ldaps":
+	case "ldap", "ldaps":
 		return nil
-	case "ldap":
-		if c.StartTLS || c.AllowInsecure || isLoopback(u.Hostname()) {
-			return nil
-		}
-		return fmt.Errorf("ldap:// without LDAP_START_TLS=true would send passwords unencrypted (use ldaps://, set LDAP_START_TLS=true, or LDAP_ALLOW_INSECURE=true on a trusted network)")
 	default:
 		return fmt.Errorf("LDAP_URL scheme must be ldap or ldaps")
 	}

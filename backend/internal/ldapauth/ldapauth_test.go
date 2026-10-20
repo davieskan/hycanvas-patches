@@ -23,22 +23,24 @@ func TestUserFilterEscapesInjection(t *testing.T) {
 func TestTransportPolicy(t *testing.T) {
 	cases := []struct {
 		url             string
-		startTLS, insec bool
-		ok              bool
+		startTLS        bool
+		ok, unencrypted bool
 	}{
-		{"ldaps://dc.example.com", false, false, true},
-		{"ldap://127.0.0.1:389", false, false, true},
-		{"ldap://localhost", false, false, true},
-		{"ldap://dc.example.com", false, false, false},
-		{"ldap://dc.example.com", true, false, true},
-		{"ldap://dc.example.com", false, true, true},
+		{"ldaps://dc.example.com", false, true, false},
+		{"ldap://127.0.0.1:389", false, true, false},
+		{"ldap://localhost", false, true, false},
+		{"ldap://192.168.1.10:389", false, true, true}, // plain LAN directory: allowed
+		{"ldap://dc.example.com", true, true, false},
 		{"http://dc.example.com", false, false, false},
 		{"not a url", false, false, false},
 	}
 	for _, c := range cases {
-		cfg := &Config{URL: c.url, StartTLS: c.startTLS, AllowInsecure: c.insec}
+		cfg := &Config{URL: c.url, StartTLS: c.startTLS}
 		if err := cfg.transportOK(); (err == nil) != c.ok {
-			t.Errorf("%s starttls=%v insecure=%v: got err=%v want ok=%v", c.url, c.startTLS, c.insec, err, c.ok)
+			t.Errorf("%s starttls=%v: got err=%v want ok=%v", c.url, c.startTLS, err, c.ok)
+		}
+		if c.ok && cfg.Unencrypted() != c.unencrypted {
+			t.Errorf("%s starttls=%v: Unencrypted()=%v want %v", c.url, c.startTLS, cfg.Unencrypted(), c.unencrypted)
 		}
 	}
 }
@@ -63,9 +65,9 @@ func TestLoadConfigDefaultsAndGating(t *testing.T) {
 		t.Fatal("a filter without {username} must disable LDAP")
 	}
 	t.Setenv("LDAP_USER_FILTER", "")
-	t.Setenv("LDAP_URL", "ldap://dc.example.com")
-	if LoadConfig() != nil {
-		t.Fatal("plain ldap:// to a remote host without StartTLS must disable LDAP")
+	t.Setenv("LDAP_URL", "ldap://192.168.1.10:389")
+	if LoadConfig() == nil {
+		t.Fatal("plain ldap:// to a LAN directory must be allowed")
 	}
 }
 
