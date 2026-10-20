@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "Quand cet espace de travail n’a pas de fournisseur propre, les membres peuvent utiliser leur propre clé depuis leurs réglages. Les limites d’utilisation et les fournisseurs bloqués s’appliquent toujours.",
   "dashboard.generates_with_your_provider": "Génère avec votre fournisseur personnel : {provider}",
   "dashboard.your_provider_label": "Votre clé · {provider}",
-  "dashboard.or_use_your_own_key": "ou utilisez votre propre clé"
+  "dashboard.or_use_your_own_key": "ou utilisez votre propre clé",
+  "auth.sign_in_with_directory": "Se connecter avec {directory}",
+  "auth.sign_in_with_your_directory_account": "Utilisez votre nom d'utilisateur et votre mot de passe {directory}.",
+  "auth.username": "Nom d'utilisateur",
+  "auth.username_or_email": "Nom d'utilisateur ou e-mail",
+  "auth.use_another_sign_in_method": "Utiliser une autre méthode de connexion",
+  "auth.invalid_username_or_password": "Nom d'utilisateur ou mot de passe incorrect.",
+  "errors.api_invalid_username_or_password": "Nom d'utilisateur ou mot de passe incorrect.",
+  "errors.api_username_and_password_are_required": "Saisissez votre nom d'utilisateur et votre mot de passe.",
+  "errors.api_ldap_not_permitted": "Votre compte d'annuaire n'est pas autorisé à utiliser cette application. Demandez l'accès à votre administrateur.",
+  "errors.api_ldap_no_email": "Votre compte d'annuaire n'a pas d'adresse e-mail. Demandez à votre administrateur d'en ajouter une.",
+  "errors.api_ldap_unavailable": "Le serveur d'annuaire est injoignable pour le moment. Réessayez dans un instant.",
+  "errors.api_ldap_account_exists": "Un compte avec cet e-mail existe déjà. Connectez-vous plutôt avec votre mot de passe.",
+  "errors.api_ldap_domain_not_allowed": "Ce domaine e-mail n'est pas autorisé pour la connexion par annuaire.",
+  "errors.api_ldap_login_disabled": "La connexion par annuaire est désactivée sur cette instance.",
+  "errors.api_ldap_signup_disabled": "Impossible de créer un compte via l'annuaire ici. Demandez à votre administrateur de créer votre compte.",
+  "errors.api_ldap_rate_limited": "Trop de tentatives de connexion. Patientez une minute puis réessayez."
 }

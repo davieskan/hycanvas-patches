@@ -105,21 +105,7 @@ func errOidc(s string) error      { return oidcError(s) }
 // allowed is true and the caller applies its own (stricter) default for
 // credentialed accounts.
 func emailDomainAllowed(email string) (allowed, configured bool) {
-	raw := strings.TrimSpace(os.Getenv("OIDC_ALLOWED_EMAIL_DOMAINS"))
-	if raw == "" {
-		return true, false
-	}
-	at := strings.LastIndex(email, "@")
-	if at < 0 {
-		return false, true
-	}
-	domain := strings.ToLower(email[at+1:])
-	for _, d := range strings.FieldsFunc(raw, func(r rune) bool { return r == ',' || r == ' ' || r == '\n' || r == '\t' }) {
-		if strings.ToLower(strings.TrimSpace(d)) == domain {
-			return true, true
-		}
-	}
-	return false, true
+	return domainInList(email, os.Getenv("OIDC_ALLOWED_EMAIL_DOMAINS"))
 }
 
 // finishOidcLogin issues a session, or returns an MFA challenge (ErrMFARequired +

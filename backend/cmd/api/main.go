@@ -39,6 +39,7 @@ import (
 	"hycanvas/backend/internal/home"
 	"hycanvas/backend/internal/httpapi"
 	"hycanvas/backend/internal/jobs"
+	"hycanvas/backend/internal/ldapauth"
 	"hycanvas/backend/internal/migrations"
 	"hycanvas/backend/internal/oidc"
 	"hycanvas/backend/internal/persistence"
@@ -336,6 +337,8 @@ func main() {
 	accountDataSvc := accountdata.NewService(pool, acct, persist)
 	// OIDC SSO (env-configured): provider list + authorization-code/PKCE flow.
 	oidcSvc := oidc.NewService(cfg.JWTSecret)
+	// LDAP directory sign-in (env-configured): search-then-bind against LDAP_URL.
+	ldapSvc := ldapauth.NewService()
 	// In-memory job registry for inline export/convert/bulk work (no Redis queue).
 	jobRegistry := jobs.NewRegistry()
 	// Session cookies are Secure in production by default. COOKIE_SECURE overrides
@@ -376,7 +379,13 @@ func main() {
 		}
 		authPolicy.OidcLogin, authPolicy.OidcSignup = false, false
 	}
-	if !authPolicy.PasswordLogin && !authPolicy.MagicLinkLogin && !authPolicy.OidcLogin {
+	if !ldapSvc.Configured() {
+		if os.Getenv("LDAP_URL") != "" {
+			logger.Warn("LDAP_URL is set but LDAP is not usable (see the earlier ldap warning); directory sign-in unavailable")
+		}
+		authPolicy.LdapLogin, authPolicy.LdapSignup = false, false
+	}
+	if !authPolicy.PasswordLogin && !authPolicy.MagicLinkLogin && !authPolicy.OidcLogin && !authPolicy.LdapLogin {
 		logger.Error("auth config disables every login method; forcing password login on to avoid lockout")
 		authPolicy.PasswordLogin = true
 	}
@@ -415,6 +424,7 @@ func main() {
 			Templates:     templatesSvc,
 			Stock:         stockSvc,
 			OIDC:          oidcSvc,
+			LDAP:          ldapSvc,
 			Push:          pushSvc,
 			Jobs:          jobRegistry,
 			BulkCreate:    bulkSvc,

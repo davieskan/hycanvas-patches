@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "Wenn dieser Arbeitsbereich keinen eigenen Anbieter hat, können Mitglieder ihren eigenen Schlüssel aus ihren Einstellungen verwenden. Nutzungslimits und gesperrte Anbieter gelten weiterhin.",
   "dashboard.generates_with_your_provider": "Generiert mit deinem persönlichen Anbieter: {provider}",
   "dashboard.your_provider_label": "Dein Schlüssel · {provider}",
-  "dashboard.or_use_your_own_key": "oder nutze deinen eigenen Schlüssel"
+  "dashboard.or_use_your_own_key": "oder nutze deinen eigenen Schlüssel",
+  "auth.sign_in_with_directory": "Mit {directory} anmelden",
+  "auth.sign_in_with_your_directory_account": "Verwenden Sie Ihren {directory}-Benutzernamen und Ihr Passwort.",
+  "auth.username": "Benutzername",
+  "auth.username_or_email": "Benutzername oder E-Mail",
+  "auth.use_another_sign_in_method": "Andere Anmeldemethode verwenden",
+  "auth.invalid_username_or_password": "Ungültiger Benutzername oder ungültiges Passwort.",
+  "errors.api_invalid_username_or_password": "Ungültiger Benutzername oder ungültiges Passwort.",
+  "errors.api_username_and_password_are_required": "Geben Sie Benutzername und Passwort ein.",
+  "errors.api_ldap_not_permitted": "Ihr Verzeichniskonto darf diese App nicht verwenden. Bitten Sie Ihren Administrator um Zugriff.",
+  "errors.api_ldap_no_email": "Ihr Verzeichniskonto hat keine E-Mail-Adresse. Bitten Sie Ihren Administrator, eine hinzuzufügen.",
+  "errors.api_ldap_unavailable": "Der Verzeichnisserver ist gerade nicht erreichbar. Versuchen Sie es gleich noch einmal.",
+  "errors.api_ldap_account_exists": "Ein Konto mit dieser E-Mail existiert bereits. Melden Sie sich stattdessen mit Ihrem Passwort an.",
+  "errors.api_ldap_domain_not_allowed": "Diese E-Mail-Domain ist für die Verzeichnisanmeldung nicht zugelassen.",
+  "errors.api_ldap_login_disabled": "Die Verzeichnisanmeldung ist auf dieser Instanz deaktiviert.",
+  "errors.api_ldap_signup_disabled": "Neue Konten können hier nicht über die Verzeichnisanmeldung erstellt werden. Bitten Sie Ihren Administrator, Ihr Konto anzulegen.",
+  "errors.api_ldap_rate_limited": "Zu viele Anmeldeversuche. Warten Sie eine Minute und versuchen Sie es erneut."
 }

@@ -27,6 +27,17 @@ export interface AuthPolicy {
   magicLinkSignup: boolean;
   oidcLogin: boolean;
   oidcSignup: boolean;
+  /** LDAP directory sign-in (AUTH_LDAP_LOGIN_ENABLED; needs LDAP_* configured).
+   *  Optional so an older server that predates LDAP reads as "off". */
+  ldapLogin?: boolean;
+  /** A first directory sign-in creates the account (AUTH_LDAP_SIGNUP_ENABLED). */
+  ldapSignup?: boolean;
+}
+
+/** LDAP directory sign-in settings for the sign-in page (null when off).
+ *  `label` is the operator's name for the directory (LDAP_LABEL). */
+export interface LdapSettings {
+  label: string;
 }
 
 /** CAPTCHA settings for the sign-in page when one is configured (null otherwise).
@@ -1173,6 +1184,14 @@ export class HyCanvasClient {
   login(input: { email: string; password: string }, captchaToken?: string): Promise<LoginResult> {
     return this.request("POST", "/v1/auth/login", input, captchaHeaders(captchaToken));
   }
+  /**
+   * Sign in with an LDAP directory account (username or email + directory
+   * password). The first sign-in creates the HyCanvas account when the instance
+   * allows it. Same result shape as `login`, including the MFA challenge.
+   */
+  ldapLogin(input: { username: string; password: string }, captchaToken?: string): Promise<LoginResult> {
+    return this.request("POST", "/v1/auth/ldap/login", input, captchaHeaders(captchaToken));
+  }
 
   // --- MFA: TOTP + recovery codes ----------------------------
   /** Begin TOTP enrollment; returns the otpauth URL (for a QR) and raw secret. */
@@ -1269,8 +1288,8 @@ export class HyCanvasClient {
   /** The instance's auth configuration: the SSO providers plus which sign-in
    *  methods and account-creation paths are enabled (AUTH_*_ENABLED). The sign-in
    *  page renders only the methods the policy allows. */
-  authConfig(): Promise<{ providers: { id: string; label: string }[]; policy: AuthPolicy; captcha: CaptchaSettings | null }> {
-    return this.request<{ providers: { id: string; label: string }[]; policy: AuthPolicy; captcha: CaptchaSettings | null }>(
+  authConfig(): Promise<{ providers: { id: string; label: string }[]; policy: AuthPolicy; captcha: CaptchaSettings | null; ldap?: LdapSettings | null }> {
+    return this.request<{ providers: { id: string; label: string }[]; policy: AuthPolicy; captcha: CaptchaSettings | null; ldap?: LdapSettings | null }>(
       "GET",
       "/v1/auth/providers",
     );

@@ -51,7 +51,7 @@ func TestProvidersEndpointReportsPolicy(t *testing.T) {
 	policy := config.AuthPolicy{PasswordLogin: false, MagicLinkLogin: true, OidcLogin: true, OidcSignup: true}
 	r := chi.NewRouter()
 	r.Route("/api/v1", func(api chi.Router) {
-		mountOIDC(api, oidc.NewService("s"), accounts.NewService(nil, "s"), false, policy, config.CaptchaConfig{})
+		mountOIDC(api, oidc.NewService("s"), accounts.NewService(nil, "s"), false, policy, config.CaptchaConfig{}, nil)
 	})
 	srv := httptest.NewServer(r)
 	defer srv.Close()

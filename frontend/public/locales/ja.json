@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "このワークスペースに独自のプロバイダーがない場合、メンバーは設定から自分のキーを使えます。利用上限とブロック中のプロバイダーは引き続き適用されます。",
   "dashboard.generates_with_your_provider": "個人のプロバイダーで生成: {provider}",
   "dashboard.your_provider_label": "あなたのキー · {provider}",
-  "dashboard.or_use_your_own_key": "または自分のキーを使う"
+  "dashboard.or_use_your_own_key": "または自分のキーを使う",
+  "auth.sign_in_with_directory": "{directory} でサインイン",
+  "auth.sign_in_with_your_directory_account": "{directory} のユーザー名とパスワードを入力してください。",
+  "auth.username": "ユーザー名",
+  "auth.username_or_email": "ユーザー名またはメールアドレス",
+  "auth.use_another_sign_in_method": "別の方法でサインイン",
+  "auth.invalid_username_or_password": "ユーザー名またはパスワードが正しくありません。",
+  "errors.api_invalid_username_or_password": "ユーザー名またはパスワードが正しくありません。",
+  "errors.api_username_and_password_are_required": "ユーザー名とパスワードを入力してください。",
+  "errors.api_ldap_not_permitted": "このディレクトリアカウントにはこのアプリの利用権限がありません。管理者にアクセスを依頼してください。",
+  "errors.api_ldap_no_email": "このディレクトリアカウントにはメールアドレスがありません。管理者に追加を依頼してください。",
+  "errors.api_ldap_unavailable": "現在ディレクトリサーバーに接続できません。しばらくしてからもう一度お試しください。",
+  "errors.api_ldap_account_exists": "このメールアドレスのアカウントは既に存在します。パスワードでサインインしてください。",
+  "errors.api_ldap_domain_not_allowed": "このメールドメインはディレクトリサインインに使用できません。",
+  "errors.api_ldap_login_disabled": "このインスタンスではディレクトリサインインが無効になっています。",
+  "errors.api_ldap_signup_disabled": "ここではディレクトリサインインで新しいアカウントを作成できません。管理者にアカウント作成を依頼してください。",
+  "errors.api_ldap_rate_limited": "サインインの試行回数が多すぎます。1分ほど待ってからもう一度お試しください。"
 }

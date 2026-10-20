@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "Cuando este espacio de trabajo no tiene proveedor propio, los miembros pueden usar su propia clave desde su configuración. Los límites de uso y los proveedores bloqueados siguen aplicándose.",
   "dashboard.generates_with_your_provider": "Genera con tu proveedor personal: {provider}",
   "dashboard.your_provider_label": "Tu clave · {provider}",
-  "dashboard.or_use_your_own_key": "o usa tu propia clave"
+  "dashboard.or_use_your_own_key": "o usa tu propia clave",
+  "auth.sign_in_with_directory": "Iniciar sesión con {directory}",
+  "auth.sign_in_with_your_directory_account": "Usa tu nombre de usuario y contraseña de {directory}.",
+  "auth.username": "Nombre de usuario",
+  "auth.username_or_email": "Nombre de usuario o correo",
+  "auth.use_another_sign_in_method": "Usar otro método de inicio de sesión",
+  "auth.invalid_username_or_password": "Nombre de usuario o contraseña no válidos.",
+  "errors.api_invalid_username_or_password": "Nombre de usuario o contraseña no válidos.",
+  "errors.api_username_and_password_are_required": "Introduce tu nombre de usuario y contraseña.",
+  "errors.api_ldap_not_permitted": "Tu cuenta del directorio no tiene permiso para usar esta aplicación. Pide acceso a tu administrador.",
+  "errors.api_ldap_no_email": "Tu cuenta del directorio no tiene dirección de correo. Pide a tu administrador que añada una.",
+  "errors.api_ldap_unavailable": "No se puede contactar con el servidor de directorio. Inténtalo de nuevo en breve.",
+  "errors.api_ldap_account_exists": "Ya existe una cuenta con este correo. Inicia sesión con tu contraseña.",
+  "errors.api_ldap_domain_not_allowed": "Este dominio de correo no está permitido para iniciar sesión con el directorio.",
+  "errors.api_ldap_login_disabled": "El inicio de sesión con directorio está desactivado en esta instancia.",
+  "errors.api_ldap_signup_disabled": "Aquí no se pueden crear cuentas nuevas con el directorio. Pide a tu administrador que cree tu cuenta.",
+  "errors.api_ldap_rate_limited": "Demasiados intentos de inicio de sesión. Espera un minuto e inténtalo de nuevo."
 }

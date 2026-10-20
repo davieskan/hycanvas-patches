@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"hycanvas/backend/internal/accounts"
+	"hycanvas/backend/internal/ldapauth"
 	"hycanvas/backend/internal/oidc"
 	"hycanvas/backend/internal/platform/config"
 )
@@ -21,10 +22,10 @@ const oidcStateCookie = "oc_oidc"
 // authorization-code + PKCE redirect/callback. start sets a signed state cookie
 // and redirects to the IdP; callback verifies it, exchanges the code, links the
 // account (LoginWithOidc), sets the session cookies, and redirects to the app.
-func mountOIDC(api chi.Router, svc *oidc.Service, acct *accounts.Service, secure bool, policy config.AuthPolicy, cap config.CaptchaConfig) {
+func mountOIDC(api chi.Router, svc *oidc.Service, acct *accounts.Service, secure bool, policy config.AuthPolicy, cap config.CaptchaConfig, ldapSvc *ldapauth.Service) {
 	// The providers endpoint doubles as the auth-config endpoint the login page
 	// reads, so it always mounts and reports the full policy plus captcha config.
-	api.Get("/auth/providers", oidcProvidersHandler(svc, policy, cap))
+	api.Get("/auth/providers", oidcProvidersHandler(svc, policy, cap, ldapSvc))
 	// The sign-in flow is available when either OIDC toggle is on; the
 	// login-vs-signup split is enforced inside the callback.
 	oidcOn := policy.OidcLogin || policy.OidcSignup
@@ -61,13 +62,19 @@ func frontendURL() string {
 // oidcProvidersHandler is also the auth-config endpoint the sign-in page reads:
 // it returns the SSO provider list plus the full method policy, so the UI shows
 // exactly the methods this instance allows.
-func oidcProvidersHandler(svc *oidc.Service, policy config.AuthPolicy, cap config.CaptchaConfig) http.HandlerFunc {
+func oidcProvidersHandler(svc *oidc.Service, policy config.AuthPolicy, cap config.CaptchaConfig, ldapSvc *ldapauth.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// captcha is null when disabled; otherwise it carries the provider and the
 		// public site key the widget needs. The secret key never leaves the server.
 		var captchaBlock any
 		if cap.Enabled() {
 			captchaBlock = map[string]string{"provider": cap.Provider, "siteKey": cap.SiteKey}
+		}
+		// ldap is null unless directory sign-in is configured and enabled; label
+		// is the operator's name for the directory (LDAP_LABEL).
+		var ldapBlock any
+		if ldapSvc.Configured() && (policy.LdapLogin || policy.LdapSignup) {
+			ldapBlock = map[string]string{"label": ldapSvc.Label()}
 		}
 		writeJSON(w, http.StatusOK, map[string]any{
 			"providers": svc.Providers(),
@@ -78,8 +85,11 @@ func oidcProvidersHandler(svc *oidc.Service, policy config.AuthPolicy, cap confi
 				"magicLinkSignup": policy.MagicLinkSignup,
 				"oidcLogin":       policy.OidcLogin,
 				"oidcSignup":      policy.OidcSignup,
+				"ldapLogin":       policy.LdapLogin,
+				"ldapSignup":      policy.LdapSignup,
 			},
 			"captcha": captchaBlock,
+			"ldap":    ldapBlock,
 		})
 	}
 }

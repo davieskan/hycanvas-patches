@@ -6,8 +6,8 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Sparkles, Play, Presentation, Image as ImageIcon, KeyRound } from "lucide-react";
-import { ApiError, type AuthPolicy, type CaptchaSettings } from "@hc/sdk";
+import { Sparkles, Play, Presentation, Image as ImageIcon, KeyRound, Building2 } from "lucide-react";
+import { ApiError, type AuthPolicy, type CaptchaSettings, type LdapSettings } from "@hc/sdk";
 import { CaptchaWidget, type CaptchaHandle } from "./CaptchaWidget";
 import { oc, authStartUrl } from "@/lib/sdk";
 import { useAuth } from "@/store/auth";
@@ -18,6 +18,7 @@ import { CanvasBackdrop } from "@/components/ui/CanvasBackdrop";
 import { CanvasFloor } from "@/components/ui/CanvasFloor";
 import { Logo } from "@/components/ui/Logo";
 import { tr } from "@/lib/i18n";
+import { apiCodeMessage } from "@/lib/errors";
 
 // Capability chips that position the breadth of the product on the brand panel.
 const chips = () => [tr("auth.templates"), tr("auth.photos_video"), tr("auth.ai_magic"), tr("auth.docs"), tr("auth.whiteboards"), tr("auth.brand_kit"), tr("auth.print")];
@@ -57,6 +58,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const toast = useToast();
   const login = useAuth((s) => s.login);
+  const ldapLogin = useAuth((s) => s.ldapLogin);
   const completeMfa = useAuth((s) => s.completeMfa);
   const signup = useAuth((s) => s.signup);
   const status = useAuth((s) => s.status);
@@ -92,6 +94,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [captcha, setCaptcha] = useState<CaptchaSettings | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const captchaRef = useRef<CaptchaHandle>(null);
+  // LDAP directory sign-in (null unless the server has it configured). The
+  // directory form is a separate mode: it asks for a directory username, not an
+  // email, and posts to /auth/ldap/login.
+  const [ldap, setLdap] = useState<LdapSettings | null>(null);
+  const [directoryChosen, setDirectoryChosen] = useState(false);
+  const [username, setUsername] = useState("");
 
   const isSignup = mode === "signup";
   // Where to land after a successful sign-in. Honors a `?next=` return path so a
@@ -165,6 +173,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       setProviders(c.providers);
       setPolicy(c.policy);
       setCaptcha(c.captcha);
+      setLdap(c.ldap ?? null);
     }).catch(() => {
       // If the config cannot be fetched, fall back to the classic
       // password + magic-link login so the page is never stuck loading. OIDC
@@ -189,11 +198,18 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const passwordOn = !!policy && (isSignup ? policy.passwordSignup : policy.passwordLogin);
   const magicOn = !!policy && (isSignup ? policy.magicLinkSignup : policy.magicLinkLogin);
   const oidcOn = !!policy && (policy.oidcLogin || policy.oidcSignup);
-  const anySignup = !!policy && (policy.passwordSignup || policy.magicLinkSignup || policy.oidcSignup);
-  const anyLogin = !!policy && (policy.passwordLogin || policy.magicLinkLogin || policy.oidcLogin);
+  // Directory sign-in is one action for both pages: the first sign-in creates
+  // the account (when ldapSignup allows it), so /signup offers it too.
+  const ldapOn = !!policy && !!ldap && (isSignup ? !!policy.ldapSignup : !!policy.ldapLogin);
+  const anySignup = !!policy && (policy.passwordSignup || policy.magicLinkSignup || policy.oidcSignup || (!!ldap && !!policy.ldapSignup));
+  const anyLogin = !!policy && (policy.passwordLogin || policy.magicLinkLogin || policy.oidcLogin || (!!ldap && !!policy.ldapLogin));
   // Nothing available for this mode (e.g. OIDC-only viewing /signup): show a
   // notice instead of an empty pane.
-  const noMethod = !passwordOn && !magicOn && !(oidcOn && providers.length > 0);
+  const noMethod = !passwordOn && !magicOn && !(oidcOn && providers.length > 0) && !ldapOn;
+  // Show the directory form when the user picked it, or when it is the only
+  // form-based method (no email form to fall back to).
+  const directoryMode = ldapOn && (directoryChosen || (!passwordOn && !magicOn));
+  const ldapLabel = ldap?.label ?? "";
   // Effective magic-link mode: the user's toggle, or forced on when magic is the
   // only local method (no password to fall back to), so submit takes the magic
   // path rather than a disabled password endpoint.
@@ -291,6 +307,34 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       } else {
         // Not an HTTP error -> the request never reached the API (server down,
         // wrong URL, or a CORS block).
+        msg = tr("auth.couldnt_reach_the_server_make_sure_the_backe");
+      }
+      setError(msg);
+      resetCaptcha();
+      setBusy(false);
+    }
+  }
+
+  async function onSubmitDirectory(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const challenge = await ldapLogin(username, password, captchaArg);
+      if (challenge) {
+        setMfaToken(challenge.mfaToken);
+        setBusy(false);
+        return;
+      }
+      await router.push(afterAuthPath);
+    } catch (err) {
+      let msg = tr("auth.something_went_wrong_please_try_again");
+      if (err instanceof ApiError) {
+        msg =
+          err.status === 401
+            ? tr("auth.invalid_username_or_password")
+            : (apiCodeMessage(err.body) ?? (err.body as { detail?: string } | undefined)?.detail ?? `Request failed (${err.status}).`);
+      } else {
         msg = tr("auth.couldnt_reach_the_server_make_sure_the_backe");
       }
       setError(msg);
@@ -470,9 +514,22 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </div>
           ) : (
           <>
-          {oidcOn && providers.length > 0 && (
+          {!directoryMode && ((oidcOn && providers.length > 0) || ldapOn) && (
             <div className="mt-7 flex flex-col gap-2">
-              {providers.map((p) => (
+              {ldapOn && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDirectoryChosen(true);
+                    setError(null);
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-surface px-4 py-2.5 text-sm font-semibold text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50"
+                >
+                  <Building2 size={16} aria-hidden />
+                  {tr("auth.sign_in_with_directory", { directory: ldapLabel })}
+                </button>
+              )}
+              {oidcOn && providers.map((p) => (
                 <a
                   key={p.id}
                   href={authStartUrl(p.id)}
@@ -500,10 +557,61 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 ? tr("auth.account_creation_is_disabled_on_this_instanc")
                 : tr("auth.sign_in_is_unavailable_contact_your_administ")}
             </div>
+          ) : directoryMode ? (
+            <>
+              <form onSubmit={onSubmitDirectory} className="mt-7 flex flex-col gap-4">
+                <p className="text-sm text-neutral-600">
+                  {tr("auth.sign_in_with_your_directory_account", { directory: ldapLabel })}
+                </p>
+                <Input
+                  label={tr("auth.username")}
+                  required
+                  placeholder={tr("auth.username_or_email")}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  autoFocus
+                />
+                <Input
+                  label={tr("auth.password")}
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+                {captcha && (
+                  <CaptchaWidget ref={captchaRef} captcha={captcha} onToken={setCaptchaToken} />
+                )}
+                {error && (
+                  <div role="alert" className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+                <Button type="submit" size="lg" block disabled={busy || !captchaOk || !username || !password}>
+                  {busy ? tr("auth.please_wait") : tr("auth.sign_in")}
+                </Button>
+              </form>
+              {/* Back to the other methods, when there are any. */}
+              {(passwordOn || magicOn || (oidcOn && providers.length > 0)) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDirectoryChosen(false);
+                    setError(null);
+                  }}
+                  className="mt-3 w-full text-center text-sm font-medium text-brand-ink hover:underline"
+                >
+                  {tr("auth.use_another_sign_in_method")}
+                </button>
+              )}
+            </>
           ) : (
             <>
               {(passwordOn || magicOn) && (
-                <form onSubmit={onSubmit} className={`flex flex-col gap-4 ${oidcOn && providers.length > 0 ? "" : "mt-7"}`}>
+                <form onSubmit={onSubmit} className={`flex flex-col gap-4 ${(oidcOn && providers.length > 0) || ldapOn ? "" : "mt-7"}`}>
                   {isSignup && passwordOn && !magicMode && (
                     <Input label={tr("auth.name")} placeholder={tr("auth.your_name")} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" autoFocus />
                   )}

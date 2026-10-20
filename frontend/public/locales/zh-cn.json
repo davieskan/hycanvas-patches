@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "当此工作区没有自有提供商时，成员可以使用其设置中的个人密钥。用量限制和已屏蔽的提供商仍然适用。",
   "dashboard.generates_with_your_provider": "使用你的个人提供商生成：{provider}",
   "dashboard.your_provider_label": "你的密钥 · {provider}",
-  "dashboard.or_use_your_own_key": "或使用你自己的密钥"
+  "dashboard.or_use_your_own_key": "或使用你自己的密钥",
+  "auth.sign_in_with_directory": "使用 {directory} 登录",
+  "auth.sign_in_with_your_directory_account": "请使用您的 {directory} 用户名和密码。",
+  "auth.username": "用户名",
+  "auth.username_or_email": "用户名或邮箱",
+  "auth.use_another_sign_in_method": "使用其他登录方式",
+  "auth.invalid_username_or_password": "用户名或密码无效。",
+  "errors.api_invalid_username_or_password": "用户名或密码无效。",
+  "errors.api_username_and_password_are_required": "请输入用户名和密码。",
+  "errors.api_ldap_not_permitted": "您的目录账户无权使用此应用。请联系管理员申请访问权限。",
+  "errors.api_ldap_no_email": "您的目录账户没有邮箱地址。请联系管理员添加。",
+  "errors.api_ldap_unavailable": "目前无法连接目录服务器。请稍后重试。",
+  "errors.api_ldap_account_exists": "该邮箱已有账户。请改用密码登录。",
+  "errors.api_ldap_domain_not_allowed": "该邮箱域名不允许使用目录登录。",
+  "errors.api_ldap_login_disabled": "此实例已关闭目录登录。",
+  "errors.api_ldap_signup_disabled": "此处无法通过目录登录创建新账户。请联系管理员为您创建账户。",
+  "errors.api_ldap_rate_limited": "登录尝试次数过多。请等待一分钟后重试。"
 }

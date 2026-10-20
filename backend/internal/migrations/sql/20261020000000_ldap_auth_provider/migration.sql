@@ -1,0 +1,12 @@
+-- LDAP directory sign-in: a new identity provider value.
+--
+-- Additive only: one new enum member on "AuthProvider", no change to any
+-- existing row and nothing to backfill. Directory identities are stored in
+-- "auth_identities" exactly like OIDC ones (provider = 'LDAP', provider_subject
+-- = the entry's stable id), so no new table or column is needed. A rollback to
+-- the previous binary is safe: it never reads or writes 'LDAP' rows, and an
+-- account linked through LDAP keeps its user row, workspaces, and designs.
+--
+-- ADD VALUE is allowed inside the migrator's transaction on Postgres 12+; the
+-- new value is not used in this same transaction, which is the one restriction.
+ALTER TYPE "AuthProvider" ADD VALUE IF NOT EXISTS 'LDAP';

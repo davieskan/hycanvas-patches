@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "When this workspace has no provider of its own, members can use their own key from their settings. Usage limits and blocked providers still apply.",
   "dashboard.generates_with_your_provider": "Generates with your personal provider: {provider}",
   "dashboard.your_provider_label": "Your key · {provider}",
-  "dashboard.or_use_your_own_key": "or use your own key"
+  "dashboard.or_use_your_own_key": "or use your own key",
+  "auth.sign_in_with_directory": "Sign in with {directory}",
+  "auth.sign_in_with_your_directory_account": "Use your {directory} username and password.",
+  "auth.username": "Username",
+  "auth.username_or_email": "Username or email",
+  "auth.use_another_sign_in_method": "Use another sign-in method",
+  "auth.invalid_username_or_password": "Invalid username or password.",
+  "errors.api_invalid_username_or_password": "Invalid username or password.",
+  "errors.api_username_and_password_are_required": "Enter your username and password.",
+  "errors.api_ldap_not_permitted": "Your directory account isn't allowed to use this app. Ask your administrator for access.",
+  "errors.api_ldap_no_email": "Your directory account has no email address. Ask your administrator to add one.",
+  "errors.api_ldap_unavailable": "The directory server can't be reached right now. Try again shortly.",
+  "errors.api_ldap_account_exists": "An account with this email already exists. Sign in with your password instead.",
+  "errors.api_ldap_domain_not_allowed": "This email domain isn't allowed for directory sign-in.",
+  "errors.api_ldap_login_disabled": "Directory sign-in is turned off on this instance.",
+  "errors.api_ldap_signup_disabled": "New accounts can't be created through directory sign-in here. Ask your administrator to create your account.",
+  "errors.api_ldap_rate_limited": "Too many sign-in attempts. Wait a minute and try again."
 }

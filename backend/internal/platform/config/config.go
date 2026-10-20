@@ -78,6 +78,8 @@ type AuthPolicy struct {
 	MagicLinkSignup bool // AUTH_MAGICLINK_SIGNUP_ENABLED (default false; creates accounts)
 	OidcLogin       bool // AUTH_OIDC_LOGIN_ENABLED       (default true; effective only when OIDC configured)
 	OidcSignup      bool // AUTH_OIDC_SIGNUP_ENABLED      (default true; effective only when OIDC configured)
+	LdapLogin       bool // AUTH_LDAP_LOGIN_ENABLED       (default true; effective only when LDAP configured)
+	LdapSignup      bool // AUTH_LDAP_SIGNUP_ENABLED      (default true; effective only when LDAP configured)
 }
 
 // Load reads and validates configuration. DATABASE_URL is required.
@@ -103,6 +105,8 @@ func Load() (Config, error) {
 			MagicLinkSignup: envBool("AUTH_MAGICLINK_SIGNUP_ENABLED", false),
 			OidcLogin:       envBool("AUTH_OIDC_LOGIN_ENABLED", true),
 			OidcSignup:      envBool("AUTH_OIDC_SIGNUP_ENABLED", true),
+			LdapLogin:       envBool("AUTH_LDAP_LOGIN_ENABLED", true),
+			LdapSignup:      envBool("AUTH_LDAP_SIGNUP_ENABLED", true),
 		},
 		Captcha: CaptchaConfig{
 			Provider:  strings.ToLower(strings.TrimSpace(os.Getenv("CAPTCHA_PROVIDER"))),

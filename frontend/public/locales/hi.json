@@ -3971,5 +3971,21 @@
   "dashboard.allow_personal_ai_keys_hint": "जब इस वर्कस्पेस का अपना प्रदाता नहीं है, सदस्य अपनी सेटिंग्स से अपनी कुंजी इस्तेमाल कर सकते हैं। उपयोग सीमाएँ और ब्लॉक किए गए प्रदाता लागू रहते हैं।",
   "dashboard.generates_with_your_provider": "आपके व्यक्तिगत प्रदाता से बनाता है: {provider}",
   "dashboard.your_provider_label": "आपकी कुंजी · {provider}",
-  "dashboard.or_use_your_own_key": "या अपनी कुंजी इस्तेमाल करें"
+  "dashboard.or_use_your_own_key": "या अपनी कुंजी इस्तेमाल करें",
+  "auth.sign_in_with_directory": "{directory} से साइन इन करें",
+  "auth.sign_in_with_your_directory_account": "अपने {directory} उपयोगकर्ता नाम और पासवर्ड का उपयोग करें।",
+  "auth.username": "उपयोगकर्ता नाम",
+  "auth.username_or_email": "उपयोगकर्ता नाम या ईमेल",
+  "auth.use_another_sign_in_method": "साइन इन का कोई दूसरा तरीका इस्तेमाल करें",
+  "auth.invalid_username_or_password": "अमान्य उपयोगकर्ता नाम या पासवर्ड।",
+  "errors.api_invalid_username_or_password": "अमान्य उपयोगकर्ता नाम या पासवर्ड।",
+  "errors.api_username_and_password_are_required": "अपना उपयोगकर्ता नाम और पासवर्ड दर्ज करें।",
+  "errors.api_ldap_not_permitted": "आपके डायरेक्टरी खाते को इस ऐप का उपयोग करने की अनुमति नहीं है। एक्सेस के लिए अपने व्यवस्थापक से संपर्क करें।",
+  "errors.api_ldap_no_email": "आपके डायरेक्टरी खाते में कोई ईमेल पता नहीं है। अपने व्यवस्थापक से इसे जोड़ने के लिए कहें।",
+  "errors.api_ldap_unavailable": "डायरेक्टरी सर्वर से अभी संपर्क नहीं हो पा रहा है। थोड़ी देर बाद फिर से कोशिश करें।",
+  "errors.api_ldap_account_exists": "इस ईमेल वाला खाता पहले से मौजूद है। इसके बजाय अपने पासवर्ड से साइन इन करें।",
+  "errors.api_ldap_domain_not_allowed": "यह ईमेल डोमेन डायरेक्टरी साइन इन के लिए अनुमत नहीं है।",
+  "errors.api_ldap_login_disabled": "इस इंस्टेंस पर डायरेक्टरी साइन इन बंद है।",
+  "errors.api_ldap_signup_disabled": "यहां डायरेक्टरी साइन इन से नए खाते नहीं बनाए जा सकते। अपना खाता बनाने के लिए अपने व्यवस्थापक से कहें।",
+  "errors.api_ldap_rate_limited": "साइन इन के बहुत अधिक प्रयास। एक मिनट रुकें और फिर से कोशिश करें।"
 }

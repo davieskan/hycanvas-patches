@@ -23,6 +23,8 @@ interface AuthState {
   // Resolves to a challenge token when the account requires a second factor;
   // the caller then prompts for a code and calls completeMfa to finish.
   login: (email: string, password: string, captchaToken?: string) => Promise<{ mfaToken: string } | void>;
+  /** LDAP directory sign-in; same contract as login (MFA challenge or session). */
+  ldapLogin: (username: string, password: string, captchaToken?: string) => Promise<{ mfaToken: string } | void>;
   completeMfa: (mfaToken: string, code: string) => Promise<void>;
   signup: (email: string, password: string, name?: string, captchaToken?: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -117,6 +119,15 @@ export const useAuth = create<AuthState>((set, get) => ({
     const res = await oc.login({ email, password }, captchaToken);
     // MFA-gated accounts get a challenge instead of a session: hand the token
     // back so the form can prompt for a code, then call completeMfa.
+    if ("mfaRequired" in res && res.mfaRequired) return { mfaToken: res.mfaToken };
+    const { user, workspaces } = await loadSession();
+    set({ status: "authed", user, workspaces, activeWorkspaceId: pickActive(workspaces) });
+    ensureTimezone(user, (u) => set({ user: u }));
+  },
+
+  async ldapLogin(username, password, captchaToken) {
+    set({ error: null });
+    const res = await oc.ldapLogin({ username, password }, captchaToken);
     if ("mfaRequired" in res && res.mfaRequired) return { mfaToken: res.mfaToken };
     const { user, workspaces } = await loadSession();
     set({ status: "authed", user, workspaces, activeWorkspaceId: pickActive(workspaces) });

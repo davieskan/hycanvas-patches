@@ -1,0 +1,57 @@
+# Test fixture for the live LDAP tests (see docs/ldap.md). Load into an
+# OpenLDAP with suffix dc=ego,dc=test:
+#   ldapadd -x -H ldap://127.0.0.1:3389 -D cn=admin,dc=ego,dc=test -w <rootpw> -f fixture.ldif
+# Test-only passwords, stored in clear so the fixture stays readable.
+dn: dc=ego,dc=test
+objectClass: dcObject
+objectClass: organization
+o: E-Go Test
+dc: ego
+
+dn: ou=people,dc=ego,dc=test
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=service,dc=ego,dc=test
+objectClass: organizationalUnit
+ou: service
+
+dn: ou=groups,dc=ego,dc=test
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=svc,ou=service,dc=ego,dc=test
+objectClass: person
+objectClass: simpleSecurityObject
+cn: svc
+sn: svc
+userPassword: svcpw
+
+dn: uid=alice,ou=people,dc=ego,dc=test
+objectClass: inetOrgPerson
+uid: alice
+cn: Alice Chan
+sn: Chan
+displayName: Alice Chan
+mail: alice@ego.test
+userPassword: alicepw
+
+dn: uid=bob,ou=people,dc=ego,dc=test
+objectClass: inetOrgPerson
+uid: bob
+cn: Bob Lee
+sn: Lee
+mail: bob@ego.test
+userPassword: bobpw
+
+dn: uid=nomail,ou=people,dc=ego,dc=test
+objectClass: inetOrgPerson
+uid: nomail
+cn: No Mail
+sn: Mail
+userPassword: nomailpw
+
+dn: cn=hycanvas-users,ou=groups,dc=ego,dc=test
+objectClass: groupOfNames
+cn: hycanvas-users
+member: uid=alice,ou=people,dc=ego,dc=test

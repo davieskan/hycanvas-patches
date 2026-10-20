@@ -30,6 +30,7 @@ import (
 	"hycanvas/backend/internal/engagement"
 	"hycanvas/backend/internal/home"
 	"hycanvas/backend/internal/jobs"
+	"hycanvas/backend/internal/ldapauth"
 	"hycanvas/backend/internal/oidc"
 	"hycanvas/backend/internal/persistence"
 	"hycanvas/backend/internal/platform/config"
@@ -67,6 +68,7 @@ type Deps struct {
 	Templates     *templates.Service
 	Stock         *stock.Service
 	OIDC          *oidc.Service
+	LDAP          *ldapauth.Service
 	Push          *push.Service
 	Jobs          *jobs.Registry
 	BulkCreate    *bulkcreate.Service
@@ -151,7 +153,10 @@ func NewRouter(d Deps) http.Handler {
 			mountAccount(api, d.AccountData, d.Accounts, d.Secure)
 		}
 		if d.Accounts != nil && d.OIDC != nil {
-			mountOIDC(api, d.OIDC, d.Accounts, d.Secure, d.Auth, d.CaptchaConfig)
+			mountOIDC(api, d.OIDC, d.Accounts, d.Secure, d.Auth, d.CaptchaConfig, d.LDAP)
+		}
+		if d.Accounts != nil {
+			mountLDAP(api, d.LDAP, d.Accounts, d.Secure, d.Auth, d.Captcha)
 		}
 		if d.Accounts != nil && d.Persistence != nil {
 			mountPersistence(api, d.Persistence, d.Accounts, d.Sharing, d.Brand)
